@@ -8,7 +8,7 @@ BUFFER_SIZE = 4096
 
 
 def recv_line(sock):
-    """Read one '\n'-terminated line from the socket."""
+    # Read one '\n'-terimnated line from the socket.
     data = b""
     while True:
         byte = sock.recv(1)
@@ -24,7 +24,7 @@ def send_line(sock, text):
 
 
 def send_file(sock, filepath):
-    """Send FILE command followed by filename, size, and raw bytes."""
+    # Send FILE command followed by filename, size, and raw bytes.
     if not os.path.exists(filepath):
         print(f"[ERROR] File not found: {filepath}")
         print(f"[DEBUG] Python is looking in: {os.getcwd()}")
