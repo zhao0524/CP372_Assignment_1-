@@ -58,8 +58,6 @@ The command will:
 * Start listening on port `9372`
 * Accept one client connection at a time
 
----
-
 ## Starting the Client
 Open a *second* terminal, and paste in this command:
 ```bash
