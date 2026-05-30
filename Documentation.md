@@ -2,9 +2,9 @@
 
 ## Overview
 
-This project is a simple TCP-based client-server application written in Python.
-It supports:
+This project is a TCP-based client-server application written in Python. The project makes use of the socket library and implements the stop and wait protocol to establish a reliable connection.
 
+Some core features:
 * User login authentication
 * Sending text messages
 * Uploading files
@@ -45,123 +45,109 @@ No external packages are required.
 
 ---
 
-# Running the Server
+# Starting the Program
 
+## Starting the Server
+Open your terminal, and paste in this command:
 ```bash
 python server.py
 ```
 
-The server:
-
-* Loads valid usernames from `users.txt`
-* Starts listening on port `9372`
-* Accepts one client connection at a time
-
-Default configuration:
-
-```python
-HOST = "0.0.0.0"
-PORT = 9372
-```
+The command will:
+* Load valid usernames from `users.txt`
+* Start listening on port `9372`
+* Accept one client connection at a time
 
 ---
 
-# Running the Client
-
+## Starting the Client
+Open a *second* terminal, and paste in this command:
 ```bash
 python client.py
 ```
 
-Optional custom host and port:
-
+You can optionally specify a custom host and port. Host defaults to `127.0.0.1`, and port defaults to `9372`:
 ```bash
 python client.py <host> <port>
 ```
 
 Example:
-
 ```bash
-python client.py 127.0.0.1 9372
+python client.py
+python client.py 127.1.2.3
+python client.py 127.1.2.3 3000
 ```
+
+The terminal will start the custom CLI for this applcation after this command is run.
 
 ---
 
 # Supported Commands
 
-## LOGIN
+There are four supported commands:
 
-Authenticate with a valid username.
+## Login
+Sends a login request to the server. If the user is found in `users.txt`, the user is authenticated. This command must be run to be able to use the other commands.
 
-### Syntax
-
+**Syntax**
 ```text
 LOGIN <username>
 ```
 
-### Example
-
+**Example Usage**
 ```text
-LOGIN alice
+LOGIN Alice
 ```
 
-### Server Responses
-
+**Example Responses**
 ```text
 200 OK Welcome, alice
 401 UNAUTHORIZED Invalid username
 400 ERROR Missing username
 ```
 
----
-
 ## MSG
+Send a text message request to the server. The user must be logged in first to use this command.
 
-Send a text message to the server.
-
-### Syntax
-
+**Syntax**
 ```text
 MSG <message>
 ```
 
-### Example
-
+**Example Usage**
 ```text
 MSG Hello server
 ```
 
-### Requirements
-
-* User must be logged in first
-
-### Server Responses
-
+**Example Responses**
 ```text
 200 OK Message received: Hello server
 403 FORBIDDEN Please login first
 400 ERROR Empty message
 ```
 
----
-
 ## FILE
+Upload a file to the server. 
 
-Upload a file to the server.
-
-### Syntax
-
+**Syntax**
 ```text
 FILE <filepath>
 ```
 
-### Example
-
+**Example Usage**
 ```text
 FILE notes.txt
 ```
 
-### Process
+**Example Responses**
+```text
+200 OK File 'notes.txt' received (1024 bytes)
+400 ERROR Missing filename
+400 ERROR Invalid file size
+403 FORBIDDEN Please login first
+```
 
+**Implementation**
 The client sends:
 
 1. `FILE <filename>`
@@ -174,33 +160,18 @@ The server:
 * Saves the file into `received_files/`
 * Prevents directory traversal using `os.path.basename()`
 
-### Limits
-
-* Maximum file size: **100 MB**
-
-### Server Responses
-
-```text
-200 OK File 'notes.txt' received (1024 bytes)
-400 ERROR Missing filename
-400 ERROR Invalid file size
-403 FORBIDDEN Please login first
-```
-
----
+**Limitations**
+* Supports a maximum file size of **100 MB**
 
 ## QUIT
+Disconnect from the server. Must be logged in with an established connection to use this command.
 
-Disconnect gracefully from the server.
-
-### Syntax
-
+**Syntax**
 ```text
 QUIT
 ```
 
-### Response
-
+**Response**
 ```text
 200 OK Goodbye
 ```
@@ -210,40 +181,15 @@ QUIT
 # Authentication
 
 Valid usernames are stored in `users.txt`.
-
 Example:
 
 ```text
-alice
-bob
-charlie
+Alice
+Bob
+Charlie
 ```
 
 Only usernames listed in this file are allowed to log in.
-
----
-
-# Communication Protocol
-
-The application uses a simple line-based protocol over TCP.
-
-## Text Commands
-
-Commands are newline (`\n`) terminated.
-
-Example:
-
-```text
-LOGIN alice\n
-```
-
-## File Transfer Format
-
-```text
-FILE example.txt\n
-1024\n
-<raw file bytes>
-```
 
 ---
 
@@ -284,11 +230,10 @@ Limitations:
 
 # Example Session
 
-## Client
-
+**Client Terminal**
 ```text
-> LOGIN alice
-[Server] 200 OK Welcome, alice
+> LOGIN Alice
+[Server] 200 OK Welcome, Alice
 
 > MSG Hello
 [Server] 200 OK Message received: Hello
@@ -300,23 +245,9 @@ Limitations:
 [Server] 200 OK Goodbye
 ```
 
-## Server
-
+**Server Terminal**
 ```text
 [AUTH] User logged in: alice
 [MSG] alice: Hello
 [FILE] Received 'test.txt' (45 bytes) from alice
 ```
-
----
-
-# Future Improvements
-
-Possible enhancements:
-
-* Multi-client support using threads
-* Password-based authentication
-* Encrypted communication (TLS)
-* File download support
-* Message broadcasting/chat rooms
-* Better logging system
